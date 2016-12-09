@@ -1,0 +1,10 @@
+<h1>Enter URL to visit: </h1>
+<div class="row">
+  <div class="col-md-12">
+    <%= form_tag('/original_url') do -%>
+      <div><%= text_field_tag 'short_url', '', size: 100 %></div>
+      <div><%= submit_tag 'Navigate to the URL' %></div>
+      <div><button onclick="window.history.back();">Back</button></div>
+    <% end -%>
+  </div>
+</div>
