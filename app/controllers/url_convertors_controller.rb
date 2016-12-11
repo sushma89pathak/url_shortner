@@ -7,21 +7,38 @@ class UrlConvertorsController < ApplicationController
     @urlConvertor = UrlConvertor.new
   end
 
+  def valid_new_url(urlConvertor)
+    if urlConvertor.save
+      short_url = generate_shortURL(urlConvertor)
+      render json: urlConvertor, status: :created, location: urlConvertor
+    else
+      render json: urlConvertor.errors, status: :unprocessable_entity
+    end
+  end
+
+  def existing_url(url)
+    urlConvertor = UrlConvertor.find_by_original_url(url)
+    if urlConvertor
+      render json: urlConvertor, status: :created
+    else
+      render json: urlConvertor.errors, status: :unprocessable_entity
+    end
+  end
+
+  def object_validaty(urlConvertor,url)
+    if urlConvertor.valid?
+      valid_new_url(urlConvertor)
+    else
+      existing_url(url)
+    end
+  end
+
   def create
-    @urlConvertor = UrlConvertor.new(params_whitelist)
-    if @urlConvertor.valid?
+    if params["url_convertor"]["original_url"].present?
+      @urlConvertor = UrlConvertor.new(params_whitelist)
       sanitized_url = sanitize_url(@urlConvertor.original_url)
-      @urlConvertor = UrlConvertor.find_by_original_url(sanitized_url)
-      if @urlConvertor
-        render json: @urlConvertor, status: :created
-      else
-        if @urlConvertor.save
-          short_url = generate_shortURL(@urlConvertor)
-          render json: @urlConvertor, status: :created, location: @urlConvertor
-        else
-          render json: @urlConvertor.errors, status: :unprocessable_entity
-        end
-      end
+      @urlConvertor.original_url = sanitized_url
+      object_validaty(@urlConvertor,sanitized_url)
     else
       flash.now[:error] = "Url convertor cannot work, please enter Original URL!"
       render :new
@@ -30,8 +47,16 @@ class UrlConvertorsController < ApplicationController
 
   def visit_original_url
     if params["short_url"].present?
-      url_obj = UrlConvertor.find_by_short_url(params["short_url"])
+      url_obj = UrlConvertor.find_by_short_url(params["short_url"].strip)
+      visit_url(url_obj)
+    end
+  end
+
+  def visit_url(url_obj)
+    if url_obj
       redirect_to url_obj.original_url
+    else
+      flash.now[:error] = "We highly doubt if that short_url exists, please cross check!"
     end
   end
 
