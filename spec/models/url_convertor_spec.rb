@@ -1,9 +1,9 @@
 require 'rails_helper'
 
 RSpec.describe UrlConvertor, type: :model do
-  describe "creation" do
+  context "creating urlConvertor" do
   	before do
-  		@url = UrlConvertor.create(original_url: "test.123.com", short_url: "8Abc32")
+  		@url = FactoryGirl.create(:urlconvertor)
   	end
 
   	it "can be created" do
@@ -15,21 +15,20 @@ RSpec.describe UrlConvertor, type: :model do
   		expect(@url).to_not be_valid
   	end
 
-    it "original_url should be unique" do
-      @url2 = UrlConvertor.create(original_url: "test.123.com")
-  		expect(@url2).to_not be_valid
-  	end
-    
-    it "short_url should be unique" do
-      @url2 = UrlConvertor.create(original_url: "test1.123.com", short_url: "8Abc327")
-  		expect(@url2).to be_valid
+    it "failed validation if original_url is not unique" do
+      url2 = FactoryGirl.build(:urlconvertor4)
+  		expect(url2).to_not be_valid
   	end
 
-    it "short_url should be unique" do
-      @url2 = UrlConvertor.create(original_url: "test1.123.com", short_url: "8Abc32")
-  		expect(@url2).to_not be_valid
+    it "failed validation if short_url is not unique" do
+      url2 = FactoryGirl.build(:urlconvertor2)
+  		expect(url2).to_not be_valid
   	end
 
+    it "each unique original_url has unique short_url" do
+      url2 = FactoryGirl.create(:urlconvertor3)
+      expect(url2).to be_valid
+    end
 
   end
 end

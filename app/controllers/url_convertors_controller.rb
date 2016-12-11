@@ -8,14 +8,13 @@ class UrlConvertorsController < ApplicationController
   end
 
   def create
-    if params["url_convertor"]["original_url"].present?
-      original_url = params["url_convertor"]["original_url"]
-      sanitized_url = sanitize_url(original_url)
+    @urlConvertor = UrlConvertor.new(params_whitelist)
+    if @urlConvertor.valid?
+      sanitized_url = sanitize_url(@urlConvertor.original_url)
       @urlConvertor = UrlConvertor.find_by_original_url(sanitized_url)
       if @urlConvertor
         render json: @urlConvertor, status: :created
       else
-        @urlConvertor = UrlConvertor.new(:original_url => sanitized_url)
         if @urlConvertor.save
           short_url = generate_shortURL(@urlConvertor)
           render json: @urlConvertor, status: :created, location: @urlConvertor
@@ -24,7 +23,7 @@ class UrlConvertorsController < ApplicationController
         end
       end
     else
-      flash.now[:notice] = "Url convertor cannot work, please enter Original URL!"
+      flash.now[:error] = "Url convertor cannot work, please enter Original URL!"
       render :new
     end
   end
@@ -60,6 +59,12 @@ class UrlConvertorsController < ApplicationController
     chars = [0..9, 'A'..'Z', 'a'..'z'].map { |range| range.to_a }.flatten
     short_url = 6.times.map { chars.sample }.join
     short_url = "#{id}#{short_url}"
+  end
+
+  private
+
+  def params_whitelist
+    params.require(:url_convertor).permit(:original_url)
   end
 
 end

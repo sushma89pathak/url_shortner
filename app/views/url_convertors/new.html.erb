@@ -18,7 +18,7 @@
 <div class="row">
   <div class="col-md-6">
     <div id='short_url_content'>
-      <button onclick="window.history.back();">Back</button>
+      <div><%= link_to "Back", root_path %></div>
     </div>
   </div>
 </div>
@@ -43,7 +43,7 @@
           var str = json.short_url;
           $('#short_url_content').show();
           $('#short_url_content').empty();
-          $('#short_url_content').append("<p> Generated short url is: "+str+"</p>");
+          $('#short_url_content').append("<p> Generated short url is: "+str+"</p><p><button onclick='window.history.back();'>Back</button></p>");
           console.log("success", json);
       });
       return false;

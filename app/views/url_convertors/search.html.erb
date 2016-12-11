@@ -4,7 +4,7 @@
     <%= form_tag('/original_url') do -%>
       <div><%= text_field_tag 'short_url', '', size: 100 %></div>
       <div><%= submit_tag 'Navigate to the URL' %></div>
-      <div><button onclick="window.history.back();">Back</button></div>
+      <div><%= link_to "Back", root_path %></div>
     <% end -%>
   </div>
 </div>
